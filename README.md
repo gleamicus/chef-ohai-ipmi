@@ -23,6 +23,9 @@ Creates the `ipmi` attribute:
 }
 ```
 
+ - `default['ohai-ipmi']['packages']['ipmitool']` - Set the version of ipmitool
+   to install, Default: nil - install the latest version.
+
 # Recipes
 
 - `ohai-ipmi::default`: Install the ipmi plugin to make the basic `available`
