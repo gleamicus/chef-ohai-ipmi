@@ -80,7 +80,8 @@ Vagrant.configure("2") do |config|
     }
 
     chef.run_list = [
-        "recipe[ohai-ipmi::default]"
+        "recipe[ohai-ipmi::default]",
+        "recipe[ohai-ipmi::ipmitool]"
     ]
   end
 end
