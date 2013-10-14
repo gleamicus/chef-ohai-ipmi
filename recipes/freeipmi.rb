@@ -27,9 +27,9 @@
 include_recipe "ohai-ipmi::default"
 
 if node['ipmi']['available']
-  package "freeipmi" do
+  package "freeipmi-tools" do
     action :install
-    version node['ohai-ipmi']['packages']['freeipmi']
+    version node['ohai-ipmi']['packages']['freeipmi-tools']
   end
 end
 
