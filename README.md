@@ -1,11 +1,12 @@
 # ohai-ipmi cookbook
 
-Install an ipmi Ohai plugin for detecting if an IPMI device is available.
+Install an ipmi Ohai plugin for detecting if an IPMI device is available. Also
+installs extra packages if desired, and potentially a nagios plugin.
 
 # Requirements
 
 `dmidecode` is required for detecting IPMI. For further attributes to be
-detected, you must install the `ipmitool` package.
+detected, you must install the `ipmitool` package with the ipmitool recipe.
 
 # Usage
 
@@ -30,8 +31,10 @@ Creates the `ipmi` attribute:
 
 - `ohai-ipmi::default`: Install the ipmi plugin to make the basic `available`
   attribute populated.
-- `ohai-ipmi::extra`: If ipmi is available, install the `ipmitool` package via
+- `ohai-ipmi::ipmitool`: If ipmi is available, install the `ipmitool` package via
   your package manager.
+- `ohai-ipmi::freeipmi`: Install the freeipmi tool if ipmi is available.
+- `ohai-ipmi::nagios`: Install a nagios check plugin for all IPMI sensors (basic.)
 
 # To-Do
 
@@ -40,3 +43,4 @@ Creates the `ipmi` attribute:
 # Author
 
 Author:: ZippyKid Inc (<support@zippykid.com>)
+
