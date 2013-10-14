@@ -26,15 +26,17 @@
 
 include_recipe "ohai-ipmi::freeipmi"
 
-cookbook_file "#{node['nagios']['plugin_dir']}/check_ipmi_sensor" do
-  source "check_ipmi_sensor"
-  owner "root"
-  group "root"
-  mode 00755
-end
+if node['ipmi']['available']
+  cookbook_file "#{node['nagios']['plugin_dir']}/check_ipmi_sensor" do
+    source "check_ipmi_sensor"
+    owner "root"
+    group "root"
+    mode 00755
+  end
 
-nagios_nrpecheck "check_ipmi_sensor" do
-  command "#{node['nagios']['plugin_dir']}/check_ipmi_sensor"
-  parameters "-H localhost"
+  nagios_nrpecheck "check_ipmi_sensor" do
+    command "#{node['nagios']['plugin_dir']}/check_ipmi_sensor"
+    parameters "-H localhost"
+  end
 end
 
