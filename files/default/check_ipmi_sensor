@@ -8,14 +8,19 @@
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
 # details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, see <http://www.gnu.org/licenses/>.
+#
+# CHANGES:
+#
+# 1. Removed the --legacy-output flag because its makes the ipmimonitoring
+# utility ignore configuration settings, like excluding device IDs.
 #
 ################################################################################
 # The following guides provide helpful information if you want to extend this
@@ -165,7 +170,7 @@ sub get_ipmi_version{
 	my $ipmi_version = '';
 	@ipmi_version_output = `$IPMICOMMAND -V`;
 	$ipmi_version = shift(@ipmi_version_output);
-	$ipmi_version =~ /(\d+)\.(\d+)\.(\d+)/;	
+	$ipmi_version =~ /(\d+)\.(\d+)\.(\d+)/;
 	@ipmi_version_output = ();
 	push @ipmi_version_output,$1,$2,$3;
 	return @ipmi_version_output;
@@ -179,7 +184,7 @@ sub simulate{
 		print "Error: Simulation file with ipmi output not found.\n";
 		exit(3);
 	}
-	return ($output = `cat $simul_file`);	
+	return ($output = `cat $simul_file`);
 }
 
 #define entire hashes
@@ -231,31 +236,31 @@ MAIN: {
 		'x|exclude=s'		=> \@ipmi_xlist,
 		'o|outformat=s'		=> \$ipmi_outformat,
 		's=s'					=>\$simulate,
-		'h|help'	    	=> 
+		'h|help'	    	=>
 			sub{print STDOUT get_version();
 				print STDOUT "\n";
 				print STDOUT get_usage();
 				print STDOUT "\n";
 				print STDOUT get_help();
 				exit(0)
-			},	
-		'V|version'	    	=> 
+			},
+		'V|version'	    	=>
 			sub{
 				print STDOUT get_version();
 				exit(0);
 			},
-		'usage|?'					=> 
+		'usage|?'					=>
 			sub{print STDOUT get_usage();
 				exit(3);
-			}	
+			}
 	) ) ){
 		usage(1);#call usage if GetOptions failed
 	}
 	usage(1) if @ARGV;#print usage if unknown arg list is left
-	
+
 ################################################################################
 # check for ipmimonitoring or ipmi-sensors. Since version > 0.8 ipmi-sensors is used
-# if '--legacy-output' is given ipmi-sensors cannot be used	
+# if '--legacy-output' is given ipmi-sensors cannot be used
 
 	if( $MISSING_COMMAND_TEXT ne "" ){
 		print STDOUT "Error:$MISSING_COMMAND_TEXT";
@@ -264,7 +269,7 @@ MAIN: {
 	else{
 		@ipmi_version = get_ipmi_version();
 		if( $ipmi_version[0] > 0 && (grep(/legacy\-output/,@freeipmi_options)) == 0){
-			$IPMICOMMAND =~ s/ipmimonitoring/ipmi-sensors/;	
+			$IPMICOMMAND =~ s/ipmimonitoring/ipmi-sensors/;
 			$ipmi_sensors = 1;
 		}
 		if( $ipmi_version[0] > 0 && (grep(/legacy\-output/,@freeipmi_options)) == 1){
@@ -281,8 +286,8 @@ MAIN: {
     @freeipmi_options = split(/\s+/, join(' ', @freeipmi_options)); # a bit hack, shell word splitting should be implemented...
     @ipmi_sensor_types = split(/,/, join(',', @ipmi_sensor_types));
     @ipmi_xlist = split(/,/, join(',', @ipmi_xlist));
-    
-    #check for zenoss output    
+
+    #check for zenoss output
     if(defined $ipmi_outformat && $ipmi_outformat eq "zenoss"){
     	$zenoss = 1;
     }
@@ -305,25 +310,25 @@ MAIN: {
 			else{
 				$abort_text = $abort_text . " -f <FreeIPMI config file> or -U <username> -P <password> -L <privilege level>";
 			}
-    	}    		
-    }        
+    	}
+    }
     if( $abort_text ne ""){
     	print STDOUT "Error: " . $abort_text . " missing.";
 		print STDOUT get_usage();
-		exit(3);	
-    }    
+		exit(3);
+    }
     # , is the seperator in the new string
     if(@ipmi_sensor_types){
-    	 push @basecmd, '-g', join(',', @ipmi_sensor_types);    	 
+    	 push @basecmd, '-g', join(',', @ipmi_sensor_types);
     }
-   
+
     if(@freeipmi_options){
     	push @basecmd, @freeipmi_options;
     }
-    
+
     #keep original basecmd for later usage
     my @getstatus = @basecmd;
-    
+
     #if -b is not defined, caching options are used
     if( !(defined $freeipmi_compat) ){
     	push @getstatus, '--quiet-cache', '--sdr-cache-recreate';
@@ -335,12 +340,12 @@ MAIN: {
 	}
 	#since version 0.8 it is necessary to add the legacy option
 	if( ($ipmi_version[0] == 0 && $ipmi_version[1] > 7) && (grep(/legacy\-output/,@freeipmi_options) == 0)){
-			push @getstatus, '--legacy-output';
+    # push @getstatus, '--legacy-output';
 	}
 	#if ipmi-sensors is used show the state of sensors an ignore N/A
 	if($ipmi_sensors){
 		push @getstatus, '--output-sensor-state', '--ignore-not-available-sensors';
-	}    		
+	}
 
 ################################################################################
 	#execute status command and redirect stdout and stderr to ipmioutput
@@ -398,10 +403,10 @@ MAIN: {
 		}
 		#split at newlines, fetch array with lines of output
 		my @ipmioutput = split('\n', $ipmioutput);
-	
+
 		#remove leading and trailing whitespace characters, split at the pipe delimiter
 		@ipmioutput = map { [ map { s/^\s*//; s/\s*$//; $_; } split(m/\|/, $_) ] } @ipmioutput;
-	
+
 		#shift out the header as it is the first line
 		my $header = shift @ipmioutput;
 		my %header;
@@ -411,7 +416,7 @@ MAIN: {
 			#checking at which position in the header is which key
 		    $header{$hdrmap{$header->[$i]}} = $i;
 		}
-	
+
 		my @ipmioutput2;
 		foreach my $row ( @ipmioutput ){
 			my %row;
@@ -426,11 +431,11 @@ MAIN: {
 		my %ipmi_xlist = map { ($_, 1) } @ipmi_xlist;
 		#filter out the desired sensor values
 		@ipmioutput2 = grep(!exists $ipmi_xlist{$_->{'id'}}, @ipmioutput2);
-	
-		my $exit = 0;		
-		my $w_sensors = '';#sensors with warnings		
-		my $perf = '';#performance sensor		
-		
+
+		my $exit = 0;
+		my $w_sensors = '';#sensors with warnings
+		my $perf = '';#performance sensor
+
 		foreach my $row ( @ipmioutput2 ){
 			if( $zenoss ){
 				$row->{'name'} =~ s/ /_/g;
@@ -449,7 +454,7 @@ MAIN: {
 					else{
 						$w_sensors .= " ($row->{'event'})";
 					}
-				}		
+				}
 	    	}
 	    	if ( $row->{'units'} ne 'N/A' ){
 				my $val = $row->{'reading'};
@@ -457,8 +462,8 @@ MAIN: {
 					$perf .= qq|$row->{'name'}=$val |;
 				}
 				else{
-					$perf .= qq|'$row->{'name'}'=$val |;	
-				}				
+					$perf .= qq|'$row->{'name'}'=$val |;
+				}
 	    	}
 		}
 		$perf = substr($perf, 0, -1);#cut off the last chars
@@ -473,17 +478,17 @@ MAIN: {
 		}
 		print " | ", $perf if $perf ne '';
 		print "\n";
-	
+
 		if ( $verbosity > 1 ){
 	    	foreach my $row (@ipmioutput2){
 	    		if( $row->{'state'} eq 'N/A'){
 	    			next;
-	    		}	    		
+	    		}
 	    		elsif( $row->{'reading'} ne 'N/A'){
 					print "$row->{'name'} = $row->{'reading'} ";
 	    		}
 	    		elsif( $row->{'event'} ne 'N/A'){
-	    			print "$row->{'name'} = $row->{'event'} ";	
+	    			print "$row->{'name'} = $row->{'event'} ";
 	    		}
 	    		else{
 	    			next;
