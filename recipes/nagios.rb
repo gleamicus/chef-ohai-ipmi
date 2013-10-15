@@ -27,6 +27,7 @@
 include_recipe "ohai-ipmi::freeipmi"
 
 if node['ipmi']['available']
+  include_recipe "perl"
   cpan_module "IPC::Run"
 
   cookbook_file "#{node['nagios']['plugin_dir']}/check_ipmi_sensor" do
