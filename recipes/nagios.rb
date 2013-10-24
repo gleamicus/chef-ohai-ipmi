@@ -27,6 +27,7 @@
 include_recipe "ohai-ipmi::freeipmi"
 
 if node['ipmi']['available']
+  include_recipe "build-essential"
   include_recipe "perl"
   cpan_module "IPC::Run"
 
