@@ -24,7 +24,11 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-node.default['ohai']['plugins']['ohai-ipmi'] = 'plugins'
-
 include_recipe "ohai"
-
+cookbook_file File.join(node['ohai']['plugin_path'], 'ipmi.rb') do
+  source 'plugins/ipmi.rb'
+  notifies :reload, 'ohai[ipmi]', :immediately
+end
+ohai 'ipmi' do
+  action :nothing
+end
